@@ -150,19 +150,6 @@ ikut dicadangkan.
 
 
 # Current Planning
-buat SYSTEM.md untuk kesimpulan hasil planning bagaimana sistem aplikasi ini dibangun
-buat UX.md untuk kesimpulan hasil planning bagaimana nanti user mengoperasikan/menggunakan aplikasi ini
 tanyakan opencode diakhir diskusi apa folder/file yang ia akan buat saat beralih kemode Build
 setelah mengubah mode Plan ke Build perintahkan saja 'mulai'
-untuk fitur app lock berfungsi mengikuti sistem multi-admin 1 akun instagram, app lock punya konfigurasinya sendiri untuk tiap admin
-Catatan teknis kecil: OAuth butuh tambahan produk Facebook Login di Meta app Anda + isi Valid OAuth Redirect URIs (publik/HTTPS di produksi; localhost di dev) — akan saya masukkan ke README ## Setup Meta Developer juga saat implementasi.
-gimana cara setup ini,  Verifikasi koneksi nyata — GAGAL. Token FB (EAA) expired 2026-08-30 00:00 PDT; instagram:test-connection menolak. Sistem bekerja tapi tak bisa dipakai sampai token segar.
-2. OAuth "Connect with Facebook" belum diuji end-to-end. Modal: Meta app harus punya
-   produk Facebook Login; redirect `localhost` diizinkan otomatis di dev mode
-   (produksi: daftarkan URL di Valid OAuth Redirect URIs). Ini jalur pengganti token expired.
-3. Polling + balasan publik riil belum pernah jalan lewat sistem: tabel comments kosong, last_polled_at NULL, bot_enabled=0. Kalau bot diaktifkan sekarang, siklus langsung gagal di langkah pertama (token expired → 190).
-4. Runtime infra belum aktif: worker php artisan queue:work database dan cron schedule:run (scheduler sudah terdaftar — schedule:list menampilkan tiap 5 menit ✓, tinggal dijalankan).
-buat script run.sh untuk menjalankan proyek ini
-buat script production.sh untuk membuat .zip yang bersih, didalamnya hanya berisi kode yang hanya diperlukan dilingkungan production termasuk dump .sql, hanya perlu file teknis, file dokumentasi misalnya tidak diperlukan. minta review file dan folder apa saja yang akan dimasukkan untuk cross-check. masuk ke plan mode supaya enak
 tambahkan metode login langsung dengan instagram agar tidak perlu lagi membuat page facebook terlebih dahulu
-sinkronkan .env ke .env.example lalu optimalkan .env.example untuk lingkungan produksi
