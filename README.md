@@ -146,6 +146,9 @@ ikut dicadangkan.
 ## Catatan untuk pengguna aplikasi
 
 
+# Sesi opencode
+
+
 # Current Planning
 buat SYSTEM.md untuk kesimpulan hasil planning bagaimana sistem aplikasi ini dibangun
 buat UX.md untuk kesimpulan hasil planning bagaimana nanti user mengoperasikan/menggunakan aplikasi ini
@@ -162,3 +165,4 @@ gimana cara setup ini,  Verifikasi koneksi nyata — GAGAL. Token FB (EAA) expir
 buat script run.sh untuk menjalankan proyek ini
 buat script production.sh untuk membuat .zip yang bersih, didalamnya hanya berisi kode yang hanya diperlukan dilingkungan production termasuk dump .sql, hanya perlu file teknis, file dokumentasi misalnya tidak diperlukan. minta review file dan folder apa saja yang akan dimasukkan untuk cross-check. masuk ke plan mode supaya enak
 tambahkan metode login langsung dengan instagram agar tidak perlu lagi membuat page facebook terlebih dahulu
+sinkronkan .env ke .env.example lalu optimalkan .env.example untuk lingkungan produksi

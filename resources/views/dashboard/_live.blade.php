@@ -13,7 +13,7 @@
                         @if ($acct->isExpired())
                             <span class="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">token habis</span>
                         @elseif ($acct->token_expires_at === null)
-                            <span class="rounded-full bg-neutral-200 px-2 py-0.5 text-xs font-medium text-neutral-600">no-expiry</span>
+                            <span class="rounded-full bg-neutral-200 px-2 py-0.5 text-xs font-medium text-neutral-600">tanpa kedaluwarsa</span>
                         @else
                             <span class="text-xs text-neutral-500">{{ $acct->daysUntilExpiry() }} hari lagi</span>
                         @endif
