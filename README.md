@@ -147,6 +147,12 @@ ikut dicadangkan.
 
 
 # Sesi opencode
+  █▀▀█ █▀▀█ █▀▀█ █▀▀▄ █▀▀▀ █▀▀█ █▀▀█ █▀▀█
+  █  █ █  █ █▀▀▀ █  █ █    █  █ █  █ █▀▀▀
+  ▀▀▀▀ █▀▀▀ ▀▀▀▀ ▀  ▀ ▀▀▀▀ ▀▀▀▀ ▀▀▀▀ ▀▀▀▀
+
+  Session   Create AGENTS.md for repository
+  Continue  opencode -s ses_fb304f6f8ffef8udBVz8zVqB1A
 
 
 # Current Planning
