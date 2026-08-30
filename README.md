@@ -45,7 +45,14 @@ php artisan boost:install
 4. bagaimana user akan menggunakan aplikasi ini + tutup hasil sepakat dengan file UX.md
 
 
+# Notes
+## Catatan untuk pengembang selanjutnya
+## Catatan untuk pengguna aplikasi
+
+
 # Current Planning
 buat SYSTEM.md untuk kesimpulan hasil planning bagaimana sistem aplikasi ini dibangun
 buat UX.md untuk kesimpulan hasil planning bagaimana nanti user mengoperasikan/menggunakan aplikasi ini
 tanyakan opencode diakhir diskusi apa folder/file yang akan ia buat saat beralih kemode Build
+setelah mengubah mode Plan ke Build perintahkan saja 'mulai'
+untuk fitur app lock berfungsi mengikuti sistem multi-admin 1 akun instagram, app lock punya konfigurasinya sendiri untuk tiap admin
