@@ -1,0 +1,28 @@
+{
+    "$schema": "https://opencode.ai/config.json",
+    "mcp": {
+        "laravel-boost": {
+            "type": "local",
+            "enabled": true,
+            "command": [
+                "php",
+                "artisan",
+                "boost:mcp"
+            ]
+        },
+        "instagram-mcp": {
+            "type": "local",
+            "enabled": true,
+            "command": [
+                "npx",
+                "-y",
+                "@mcpware/instagram-mcp"
+            ],
+            "environment": {
+                "INSTAGRAM_ACCESS_TOKEN": "{env:INSTAGRAM_ACCESS_TOKEN}",
+                "INSTAGRAM_ACCOUNT_ID": "{env:INSTAGRAM_ACCOUNT_ID}",
+                "INSTAGRAM_API_VERSION": "v26.0"
+            }
+        }
+    }
+}
