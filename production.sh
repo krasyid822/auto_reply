@@ -136,11 +136,23 @@ else
 fi
 [[ -s "$STAGE/database/auto_reply.sql" ]] || { echo "ERROR: dump gagal / kosong." >&2; exit 1; }
 
+# --- URL repo (dinamis, versi HTTPS) ---
+REPO_URL="$(git config --get remote.origin.url 2>/dev/null || true)"
+if [[ -n "$REPO_URL" ]]; then
+    [[ "$REPO_URL" == git@* ]] && REPO_URL="https://github.com/${REPO_URL#*:}"
+    REPO_URL="${REPO_URL%.git}"
+fi
+
 # --- Template panduan setup cPanel (dibuat di staging, masuk zip) ---
 cat > "$STAGE/DEPLOY-cPanel.md" <<'DOC'
 # Deploy Auto-Reply Komentar IG ke cPanel
 
 Berlaku untuk PHP 8.3+ dan MySQL/MariaDB (extension `mysqli`/`pdo_mysql` aktif).
+
+## Sumber kode & versi
+
+- Repo Git (buka/unduh kode sumber): $(REPO_URL)
+- Backup/update: tarik kode terbaru dari repo ini, lalu ulangi langkah 2-5.
 
 ## 1. Upload & extract
 
@@ -273,6 +285,13 @@ Shared hosting cPanel tidak mengizinkan proses jalan terus (tidak ada systemd), 
 - Jangan commit `.env` / token. Dump `auto_reply.sql` berisi token terenkripsi
   (perlu `APP_KEY` yang sama); hapus dari server bila tidak lagi dibutuhkan.
 DOC
+
+# --- Substitusi URL repo (heredoc quoted, jadi ganti placeholder) ---
+if [[ -n "$REPO_URL" ]]; then
+    sed -i "s|\$(REPO_URL)|$REPO_URL|" "$STAGE/DEPLOY-cPanel.md"
+else
+    sed -i 's|Repo Git (buka/unduh kode sumber): $(REPO_URL)|Repo Git: (repo tidak tersedia — folder ini bukan clone dari git)|' "$STAGE/DEPLOY-cPanel.md"
+fi
 
 # --- Zip ---
 ZIP="$ROOT/auto-reply-$STAMP.zip"
