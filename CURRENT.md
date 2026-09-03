@@ -3,6 +3,33 @@
 Dokumen ini mencatat progres pembangunan **Auto-Reply Komentar Instagram SAE** dan
 alasan di balik keputusan teknis (biar sesi OpenCode berikutnya tidak menebak lagi).
 
+- **Tambah panduan prasyarat akun IG di DEPLOY-cPanel.md (2026-09-03)**: `DEPLOY-cPanel.md`
+  (yang di-generate `production.sh` via heredoc quoted `DOC`) sebelumnya **tidak** memuat
+  kewajiban akun IG dalam **Mode Professional (Business/Creator)** maupun terhubung ke
+  **Facebook Page** (Linked Accounts) — padahal itu syarat wajib bundle "Instagram Login
+  with Facebook" (Graph `graph.facebook.com`). Syarat tsb hanya ada di `README.md`, bukan di
+  panduan deploy produksi untuk user. **Fix**: sisipkan section `## 3. Prasyarat Akun
+  Instagram (wajib)` (3.1 Mode Professional, 3.2 link Facebook Page via Linked Accounts,
+  3.3 verifikasi tanda "IG terhubung") **sebelum** `## 4. Konfigurasi .env`, lalu geser
+  nomor section lama (Database→5, Jalankan & cron→6) & update "langkah 2-5"→"2-6". Teks
+  lintas-heredoc quoted → literal aman; `$(REPO_URL)` tetap satu-satunya placeholder via `sed`.
+  Verifikasi: `bash -n` OK; jalankan `production.sh` → `unzip -p ... DEPLOY-cPanel.md`
+  memuat seluruh section baru.
+
+- **Fix tombol "▶ Cek sekarang" di Settings (2026-09-03)**: root cause "tombol tak
+  pernah polling, selalu muncul 'Setelan bot disimpan'" = **form HTML nested invalid**:
+  `<form id="poll-now-form">` ada DI DALAM `<form action="settings.update">` → browser
+  drop form dalam → `setupPollNow()` (`app.js`) find `#poll-now-form` gagal → early
+  return → tombol submit form luar `settings.update` → flash "Setelan bot disimpan",
+  `pollNow()` tidak pernah dieksekusi. **Fix**: ganti form nested jadi `<button
+  type="button" id="poll-now-btn" data-action="{{ route('settings.poll-now') }}">`
+  (sibling sejajar, tanpa hardcode URL — pola `data-*`/`dataset` konsisten dgn app.js);
+  `setupPollNow()` kini bind `click` + `fetch(btn.dataset.action)`. Endpoint `pollNow`
+  tak berubah. Test baru `test_poll_now_triggered_by_button_runs_processing`
+  (post `/settings/poll-now` JSON → `ok:true`, message polling, job ter-push). Jumlah
+  media tetap dinamis mengikuti `max_media_per_cycle` (kolom input). **73 tes lulus,
+  pint bersih**.
+
 - **Konversi URL → media id di input "Postingan tertentu" (2026-08-31)**: textarea
   `media_ids` kini menerima URL postingan `instagram.com/{p|reel|tv}/{shortcode}` —
   otomatis dikonversi ke media_id numerik (JS debounce `setupMediaIdResolver()`,
@@ -181,6 +208,23 @@ alasan di balik keputusan teknis (biar sesi OpenCode berikutnya tidak menebak la
 - Dev server: `composer run dev` (`php artisan dev`, port 8000).
 
 ## Progres per Hari
+
+### 2026-09-03 — fix keyword matching + reprocess skipped
+- **Root cause komentar terlewat**: record `status=skipped` di-lock permanen oleh
+  dedup (`Comment::where('comment_id', ...)->exists()`). Saat user tambah keyword
+  baru, komentar lama yang di-skip tidak pernah diproses ulang → keyword baru tidak
+  pernah match komentar tersebut. Gejala: output `baru 0 | duplikat 9`.
+- **Fix `AutoReplyRule::matches()`**: tambah `trim()` + guard keyword kosong/blank
+  (mencegah keyword spasi-murni menerjang semua komentar).
+- **Fix `RuleController`**: trim keyword saat `store()`/`update()` + validasi
+  `regex:/\S/` untuk menolak keyword spasi-murni di form.
+- **Command `instagram:reprocess-skipped`**: hapus record `status=skipped` agar
+  siklus berikutnya memproses ulang dengan rule terbaru. (Keputusan user: `delete`
+  diterima; data skipped tidak bernilai, jadi biarkan alur normal yang memperbarui.)
+- **Debug logging**: tambah `Log::debug('comment_match')` (teks + rule matched) di
+  `AutoReplyService` dengan guard `app()->isLocal()` — hanya aktif di localhost/dev,
+  tidak di production.
+- **72 tes lulus**, pint bersih.
 
 ### 2026-08-30 — pembahasan + mulai implementasi
 - Semua keputusan desain sistem & UX dibulatkan (lihat di atas).

@@ -254,32 +254,29 @@ function setupLogsLive() {
  * Tombol "▶ Cek sekarang": jalankan polling lewat fetch (JSON) tanpa reload.
  */
 function setupPollNow() {
-    const form = document.getElementById('poll-now-form');
+    const btn = document.getElementById('poll-now-btn');
 
-    if (!form) return;
+    if (!btn) return;
 
     const status = document.getElementById('poll-status');
     const csrf = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
 
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
+    btn.addEventListener('click', async () => {
+        if (btn.disabled) return;
 
-        const button = form.querySelector('button');
-        const original = button.textContent;
-
-        button.disabled = true;
-        button.textContent = 'Memeriksa…';
+        const original = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = 'Memeriksa…';
         status.textContent = '';
         status.className = 'text-sm';
 
         try {
-            const res = await fetch(form.action, {
+            const res = await fetch(btn.dataset.action, {
                 method: 'POST',
                 headers: {
                     Accept: 'application/json',
                     'X-CSRF-TOKEN': csrf,
                 },
-                body: new FormData(form),
             });
 
             const data = await res.json().catch(() => null);
@@ -295,8 +292,8 @@ function setupPollNow() {
             status.textContent = 'Gagal menghubungi server.';
             status.classList.add('text-red-600');
         } finally {
-            button.disabled = false;
-            button.textContent = original;
+            btn.disabled = false;
+            btn.textContent = original;
         }
     });
 }

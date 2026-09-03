@@ -148,10 +148,10 @@
 
             <div class="flex flex-wrap items-center gap-2">
                 <button class="rounded-xl bg-neutral-900 px-5 py-2 text-sm font-semibold text-white hover:bg-neutral-700">Simpan</button>
-                <form method="POST" action="{{ route('settings.poll-now') }}" id="poll-now-form">
-                    @csrf
-                    <button class="rounded-xl border border-neutral-300 px-5 py-2 text-sm font-medium hover:bg-neutral-100">▶ Cek sekarang</button>
-                </form>
+                <button type="button"
+                        id="poll-now-btn"
+                        data-action="{{ route('settings.poll-now') }}"
+                        class="rounded-xl border border-neutral-300 px-5 py-2 text-sm font-medium hover:bg-neutral-100">▶ Cek sekarang</button>
                 <span id="poll-status" class="text-sm"></span>
             </div>
         </form>

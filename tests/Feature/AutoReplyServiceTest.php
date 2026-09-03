@@ -367,4 +367,56 @@ class AutoReplyServiceTest extends TestCase
         $this->assertSame('Lokasi: Jakarta.', $service->findRule('DIMANA LOKASI KALIAN?', $rules)?->reply_text);
         $this->assertNull($service->findRule('tidak berkata apa-apa', $rules));
     }
+
+    public function test_find_rule_trimmed_keyword(): void
+    {
+        $rules = collect([
+            AutoReplyRule::create(['keyword' => 'harga ', 'reply_text' => 'Silakan DM.', 'is_active' => true]),
+        ]);
+
+        $service = app(AutoReplyService::class);
+
+        $this->assertSame('Silakan DM.', $service->findRule('berapa harga?', $rules)?->reply_text);
+        $this->assertSame('Silakan DM.', $service->findRule('info harga', $rules)?->reply_text);
+    }
+
+    public function test_find_rule_blank_keyword_never_matches(): void
+    {
+        $rules = collect([
+            AutoReplyRule::create(['keyword' => '   ', 'reply_text' => 'Tidak seharusnya match.', 'is_active' => true]),
+        ]);
+
+        $service = app(AutoReplyService::class);
+
+        $this->assertNull($service->findRule('apa pun', $rules));
+        $this->assertNull($service->findRule('   ', $rules));
+    }
+
+    public function test_reprocess_skipped_deletes_comments(): void
+    {
+        Comment::create([
+            'ig_user_id' => 17841406718308216,
+            'comment_id' => 999000001,
+            'media_id' => 18077184818352540,
+            'text' => 'test',
+            'status' => Comment::STATUS_SKIPPED,
+        ]);
+
+        Comment::create([
+            'ig_user_id' => 17841406718308216,
+            'comment_id' => 999000002,
+            'media_id' => 18077184818352540,
+            'text' => 'test2',
+            'status' => Comment::STATUS_REPLIED,
+        ]);
+
+        $this->assertDatabaseCount('comments', 2);
+
+        $this->artisan('instagram:reprocess-skipped')
+            ->expectsOutputToContain('1 komentar skipped dihapus.')
+            ->assertSuccessful();
+
+        $this->assertDatabaseCount('comments', 1);
+        $this->assertDatabaseHas('comments', ['comment_id' => 999000002, 'status' => Comment::STATUS_REPLIED]);
+    }
 }

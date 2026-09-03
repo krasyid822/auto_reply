@@ -26,6 +26,7 @@ class RuleController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $this->validated($request);
+        $data['keyword'] = trim($data['keyword']);
 
         AutoReplyRule::create($data + ['sort_order' => (int) AutoReplyRule::max('sort_order') + 1]);
 
@@ -36,7 +37,7 @@ class RuleController extends Controller
     {
         $this->validated($request);
         $rule->update([
-            'keyword' => $request->string('keyword'),
+            'keyword' => trim((string) $request->string('keyword')),
             'reply_text' => $request->string('reply_text'),
             'is_active' => $request->boolean('is_active'),
         ]);
@@ -61,10 +62,11 @@ class RuleController extends Controller
     protected function validated(Request $request): array
     {
         return $request->validate([
-            'keyword' => ['required', 'string', 'max:255'],
+            'keyword' => ['required', 'string', 'max:255', 'regex:/\S/'],
             'reply_text' => ['required', 'string', 'max:1000'],
         ], [
             'keyword.required' => 'Keyword wajib diisi.',
+            'keyword.regex' => 'Keyword tidak boleh hanya spasi.',
             'reply_text.required' => 'Template balasan wajib diisi.',
         ]);
     }

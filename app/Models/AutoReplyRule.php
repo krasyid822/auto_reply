@@ -25,6 +25,12 @@ class AutoReplyRule extends Model
 
     public function matches(string $text): bool
     {
-        return str_contains(mb_strtolower($text), mb_strtolower($this->keyword));
+        $keyword = trim($this->keyword);
+
+        if ($keyword === '') {
+            return false;
+        }
+
+        return str_contains(mb_strtolower($text), mb_strtolower($keyword));
     }
 }

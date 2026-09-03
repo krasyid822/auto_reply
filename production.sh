@@ -152,7 +152,7 @@ Berlaku untuk PHP 8.3+ dan MySQL/MariaDB (extension `mysqli`/`pdo_mysql` aktif).
 ## Sumber kode & versi
 
 - Repo Git (buka/unduh kode sumber): $(REPO_URL)
-- Backup/update: tarik kode terbaru dari repo ini, lalu ulangi langkah 2-5.
+- Backup/update: tarik kode terbaru dari repo ini, lalu ulangi langkah 2-6.
 
 ## 1. Upload & extract
 
@@ -218,7 +218,38 @@ Ada dua pilihan — pilih sesuai cara Anda membuat domain/subdomain:
 **Jika zip SUDAH menyertakan `vendor`** (pilihan 2): cukup pastikan izin file tidak berubah
 (`rwxr-xr-x` untuk folder, `rw-r--r--` untuk file).
 
-## 3. Konfigurasi `.env`
+## 3. Prasyarat Akun Instagram (wajib)
+
+Sistem membaca komentar lewat **Instagram Graph API** (bundle *"Instagram Login with Facebook"*)
+dan memakai token **Facebook/Page** melalui `graph.facebook.com`. Agar bisa mengakses komentar,
+akun IG yang akan dipakai **harus memenuhi 2 syarat berikut**. Tanpa keduanya, *Connect with
+Facebook* akan gagal atau komentar tidak terbaca.
+
+### 3.1 Aktifkan Mode Professional (Business atau Creator)
+Akun pribadi (personal) tidak punya akses ke data/callback komentar. Cara mengaktifkan:
+1. Buka aplikasi Instagram → **Profile** → menu **☰ (tiga garis)** → **Settings**.
+2. Masuk **Account type and tools** (atau **Account**) → **Switch to professional account**.
+3. Pilih kategori usaha (bebas, mis. *Store* / *Product/Service*) → pilih **Business**
+   (atau **Creator**) → ikuti sampai selesai.
+
+### 3.2 Hubungkan ke minimal satu Facebook Page
+"Instagram Login with Facebook" mengambil Page dari akun Facebook yang sama sebagai pintu
+masuk izin. Jika belum ada:
+1. Buat **Facebook Page** (di facebook.com: **Pages → Create new Page** — boleh Page kosong).
+2. Di aplikasi Instagram: **Settings → Linked Accounts → Facebook** → pilih Page tsb → **Hubungkan**.
+3. (Opsional) Konfirmasi di **Meta Business Suite** → Business Settings → Page →
+   *Linked Instagram accounts* menampilkan akun IG.
+
+> Akses komentar juga butuh izin aplikasi Meta (`instagram_basic`,
+> `instagram_manage_comments`, `pages_show_list`, `pages_read_engagement`,
+> `pages_manage_metadata`, `page_management`) — disetujui saat **Connect with Facebook**.
+
+### 3.3 Verifikasi
+Saat proses **Connect with Facebook** di dashboard, aplikasi menampilkan daftar Page; pilih
+Page yang bertanda **IG terhubung**. Kalau tidak ada yang bertanda, kembali ke langkah 3.1 & 3.2
+lalu ulangi.
+
+## 4. Konfigurasi `.env`
 
 1. Copy `.env.example` → `.env` (di File Manager: rename/duplicate).
 2. Isi:
@@ -243,7 +274,7 @@ Ada dua pilihan — pilih sesuai cara Anda membuat domain/subdomain:
    > Bila tidak didaftarkan, tombol *Hubungkan dengan Facebook* akan gagal dengan
    > error seperti *"URL blocked / redirect_uri is not authorized"*.
 
-## 4. Database
+## 5. Database
 
 **Jika zip berisi `database/auto_reply.sql` schema + data (pilihan 1):**
 
@@ -257,7 +288,7 @@ Ada dua pilihan — pilih sesuai cara Anda membuat domain/subdomain:
   php artisan migrate --seed
   ```
 
-## 5. Jalankan & cron (produksi cPanel)
+## 6. Jalankan & cron (produksi cPanel)
 
 Shared hosting cPanel tidak mengizinkan proses jalan terus (tidak ada systemd), jadi
 **satu baris cron per menit** cukup untuk menjalankan polling komentar + worker queue:

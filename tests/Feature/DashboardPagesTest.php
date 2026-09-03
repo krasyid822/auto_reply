@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Jobs\ReplyToCommentJob;
 use App\Models\AutoReplyRule;
 use App\Models\Comment;
 use App\Models\InstagramAccount;
@@ -9,6 +10,7 @@ use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
 class DashboardPagesTest extends TestCase
@@ -556,6 +558,47 @@ class DashboardPagesTest extends TestCase
             ->post('/settings/poll-now')
             ->assertRedirect()
             ->assertSessionHas('flash');
+    }
+
+    public function test_poll_now_triggered_by_button_runs_processing(): void
+    {
+        InstagramAccount::create([
+            'ig_user_id' => 17841406718308216,
+            'username' => 'rakurn299',
+            'access_token' => 'test-token',
+            'token_type' => 'user',
+            'token_expires_at' => now()->addDays(30),
+            'connected_at' => now(),
+        ]);
+        Setting::singleton()->update(['bot_enabled' => true]);
+        AutoReplyRule::create(['keyword' => 'harga', 'reply_text' => 'Silakan DM.', 'is_active' => true]);
+
+        Http::fake([
+            'graph.facebook.com/v26.0/17841406718308216/media*' => Http::response([
+                'data' => [
+                    ['id' => '18077184818352540', 'media_type' => 'CAROUSEL_ALBUM', 'timestamp' => '2026-08-29T10:00:00+0000', 'permalink' => 'https://www.instagram.com/p/DWUsLU9EqZM/'],
+                ],
+                'paging' => ['cursors' => ['after' => null]],
+            ]),
+            'graph.facebook.com/v26.0/18077184818352540/comments*' => Http::response([
+                'data' => [
+                    ['id' => '101', 'text' => 'berapa harga?', 'username' => 'user_baru', 'from' => ['id' => '999'], 'timestamp' => '2026-08-29T11:00:00+0000'],
+                ],
+                'paging' => ['cursors' => ['after' => null]],
+            ]),
+            'graph.facebook.com/*' => Http::response(['error' => ['message' => 'not faked', 'code' => 1]]),
+        ]);
+
+        Queue::fake();
+
+        $this->withAdminSession()
+            ->post('/settings/poll-now', [], ['Accept' => 'application/json'])
+            ->assertOk()
+            ->assertJsonPath('ok', true)
+            ->assertJsonPath('message', 'Polling selesai: 1 komentar baru, 1 balas diantrekan.');
+
+        Queue::assertPushed(ReplyToCommentJob::class, 1);
+        $this->assertDatabaseHas('comments', ['comment_id' => '101', 'status' => Comment::STATUS_PENDING]);
     }
 
     public function test_test_connection_no_account(): void

@@ -160,3 +160,4 @@ tanyakan opencode diakhir diskusi apa folder/file yang ia akan buat saat beralih
 setelah mengubah mode Plan ke Build perintahkan saja 'mulai'
 tambahkan metode login langsung dengan instagram agar tidak perlu lagi membuat page facebook terlebih dahulu
 jalankan laravel-simplifier nanti
+jadikan masalah komentar baru yang tidak langsung dibalas sistem sebagai fitur

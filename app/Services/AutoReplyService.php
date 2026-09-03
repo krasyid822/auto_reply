@@ -157,6 +157,13 @@ class AutoReplyService
 
                 $rule = $this->findRule((string) ($raw['text'] ?? ''), $rules);
 
+                if (app()->isLocal()) {
+                    \Log::debug('comment_match', [
+                        'text' => $raw['text'] ?? null,
+                        'matched' => $rule?->keyword ?? 'NONE',
+                    ]);
+                }
+
                 if ($rule === null) {
                     Comment::create([
                         'ig_user_id' => (int) $account->ig_user_id,
